@@ -1,72 +1,48 @@
-const fs = require('fs'), path = require('path'), sanitize = require("sanitize-filename"), axios = require('axios').default, setDescription = require('./setDescription');
+const fs = require('fs'),
+    path = require('path'),
+    sanitize = require("sanitize-filename"),
+    axios = require('axios').default,
+    setDescription = require('./setDescription');
 
-let d;
 
-async function getScreenshots(){
-    await fs.readFile('data.json', 'utf8', function readFileCallback(err, data){
-        if(err) throw err;
-    
-        d = JSON.parse(data);
+function downloadScreenshot(screenshot_entry, screenshot_id) {
+    const screenshot_data = screenshot_entry.game.name;
+    const g_name = sanitize(`${screenshot_entry.game.name} (${screenshot_entry.game.appid})`)
 
-        fs.mkdir("games", { recursive: true }, (err) => {
-            if (err) throw err;
-            downloadScreenshot(0);
-        });
-    });
-}
-
-function downloadScreenshot(n){
-    if(n === d.length){
-        console.log('The program has finished the download.');
-        return true;
-        process.exit(1);
+    if (screenshot_entry.downloaded) {
+        console.log('  This screenshot has already been downloaded.');
+        return downloadScreenshot(screenshot_number + 1);
     }
 
-    console.log(`Downloading screenshot ${n + 1} of ${d.length}`);
+    const directory_name = `games/${g_name}`;
+    fs.mkdir(directory_name, {
+        recursive: true
+    }, (err) => {
+        if (err) throw err;
 
-    if(d[n].downloaded){
-        console.log('Screenshot already downloaded.');
-        return downloadScreenshot(n + 1);
-    }
+        const img_path = `${directory_name}/${screenshot_id}.jpg`,
+            writer = fs.createWriteStream(img_path),
+            request = {
+                method: 'get',
+                url: screenshot_entry.url,
+                responseType: 'stream'
+            };
 
-    const g_name = sanitize(`${d[n].game.name} (${d[n].game.appid})`),
-    dir = `games/${g_name}`;
-
-    fs.mkdir(dir, { recursive: true }, (err) => {
-        if(err) throw err;
-
-        const img_path = `${dir}/${n}.jpg`,
-        writer = fs.createWriteStream(img_path),
-        request = {
-            method: 'get',
-            url: d[n].url,
-            responseType:'stream'
-        };
-    
         axios(request)
-        .then(function (response) {
-          response.data.pipe(writer);
-    
-          return new Promise((resolve, reject) => {
-            writer.on('finish', ()=>{
-                d[n] = {...d[n], downloaded:true};
+            .then(function (response) {
+                response.data.pipe(writer);
 
-                //if the screenshot has a description, add it as an embed or .txt
-                if(d[n].description){
-                    setDescription(img_path, d[n].description);
-                }
-
-                fs.writeFile('data.json', JSON.stringify(d), () => {
-                    downloadScreenshot(n + 1);
+                return new Promise((resolve, reject) => {
+                        // If the screenshot has a description, add it as an embed or .txt
+                        if (screenshot_entry.description) {
+                            setDescription(img_path, screenshot_entry.description);
+                        }
                 });
+            })
+            .catch(function (error) {
+                throw error;
             });
-            writer.on('error', reject)
-          });
-        })
-        .catch(function (error) {
-            throw error;
-        });
     });
 }
 
-module.exports = getScreenshots;
+module.exports = { downloadScreenshot };

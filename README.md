@@ -1,16 +1,27 @@
-# steam-screenshot-backup-tool
-A backup tool for Steam screenshots.
+# Steam Screenshot Backup Tool
 
+Downloads all of the public (not private or unlisted) screenshots associated with a Steam profile
+
+This repository is a fork of [Salies' Steam Screenshot Backup Tool](https://github.com/Salies/steam-screenshot-backup-tool).
+
+## Notes:
+- Does a complete download of the user's screenshot each run. 
+
+## Changes made:
+- 🐛 Fixed bug where last page's worth of screenshots were not downloaded
+- ✨ Changed screenshot name to the unique screenshot ID instead of an arbitrary number
+- 🎨 Replaced some recursive logic
+
+## Outstanding issues (I am happy to accept PRs to fix these!):
+- Program hangs when all downloads finish, user must press `CTRL-c` to safely quit
+- Incremental downloads (`data.json` is deleted on startup at the moment)
+- Would be nice to be able to download multiple users' screenshots side by side
 ## Usage
 Have **Node v10** or later installed. Using the latest [LTS version](https://nodejs.org/en/download/) is recommended.
+
 ```bash
-git clone https://github.com/Salies/steam-screenshot-backup-tool # or download the zip
-cd steam-screenshot-backup-tool
-npm install
-node app.js
+    git clone https://github.com/djbeadle/steam-screenshot-backup-tool; # or download the zip
+    cd steam-screenshot-backup-tool;
+    npm install;
+    npm run start;
 ```
-
-If the program ever crashes for some reason - it may happen, for instance, when the screenshot data is being fetched - just cancel the operation and start again. The tool is configured to always pick up where it left.
-
-**Todo list:**
-* Name the files according to the date they were created (like Steam names it when the screenshots are created).
