@@ -1,4 +1,4 @@
-# Steam Screenshot Backup Tool
+# Steam Screenshot Downloader / Backup Tool
 
 Downloads all of the public (not private or unlisted) screenshots associated with a Steam profile
 
