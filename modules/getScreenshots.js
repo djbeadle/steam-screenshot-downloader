@@ -5,16 +5,12 @@ const fs = require('fs'),
     setDescription = require('./setDescription');
 
 
-function downloadScreenshot(screenshot_entry, screenshot_id) {
+function downloadScreenshot(output_folder_name, screenshot_entry, screenshot_id) {
     const screenshot_data = screenshot_entry.game.name;
     const g_name = sanitize(`${screenshot_entry.game.name} (${screenshot_entry.game.appid})`)
 
-    if (screenshot_entry.downloaded) {
-        console.log('  This screenshot has already been downloaded.');
-        return downloadScreenshot(screenshot_number + 1);
-    }
-
-    const directory_name = `games/${g_name}`;
+    const directory_name = `${output_folder_name}/${g_name}`;
+    
     fs.mkdir(directory_name, {
         recursive: true
     }, (err) => {

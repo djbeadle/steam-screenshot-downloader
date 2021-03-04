@@ -43,6 +43,7 @@ async function getScreenshotMetadata(sshot_url, page) {
 
     return {
         screenshot_page: sshot_url,
+        downloaded: false,
         url: screenshot_href,
         description: screenshot_description,
         date_posted: screenshot_posted,
